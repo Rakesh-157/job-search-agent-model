@@ -1,7 +1,7 @@
 import streamlit as st
 from PyPDF2 import PdfReader
 
-st.title("AI Job Assistant 🤖")
+st.title("AI Job Assistant ")
 
 uploaded_file = st.file_uploader("Upload your resume (PDF)", type="pdf")
 
