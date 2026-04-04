@@ -15,4 +15,4 @@ if uploaded_file is not None:
         text += page.extract_text()
 
     st.subheader("Extracted Text:")
-    st.write(text[:1000])  # show first 1000 characters
+    st.write(text[:1000]) 
