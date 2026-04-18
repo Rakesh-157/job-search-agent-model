@@ -105,6 +105,20 @@ st.subheader("📊 Resume Score")
 
 score = 0
 
+total_skills = len(skill_keywords)
+skill_keywords = [
+    "python", "java", "c", "c++", "javascript",
+    "html", "css", "react", "node", "django",
+    "flask", "sql", "mongodb", "machine learning",
+    "data science", "ai", "deep learning",
+    "pandas", "numpy", "tensorflow", "git"
+]
+# define skills first
+skill_keywords = ["python", "java", "html", "css"]
+
+# then use it
+total_skills = len(skill_keywords)
+
 # Skill score (60 marks)
 total_skills = len(skill_keywords)
 matched_skills = len(found_skills)
