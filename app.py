@@ -98,3 +98,54 @@ with tab2:
                 st.write("---")
         else:
             st.warning("No matching jobs found")
+
+
+# Resume scoring
+st.subheader("📊 Resume Score")
+
+score = 0
+
+# Skill score (60 marks)
+total_skills = len(skill_keywords)
+matched_skills = len(found_skills)
+
+skill_score = (matched_skills / total_skills) * 60
+score += skill_score
+
+# Resume length score (20 marks)
+word_count = len(resume_text.split())
+
+if word_count > 300:
+    score += 20
+elif word_count > 200:
+    score += 15
+elif word_count > 100:
+    score += 10
+else:
+    score += 5
+
+# Projects check (10 marks)
+if "project" in resume_text.lower():
+    score += 10
+
+# Education check (10 marks)
+if "bachelor" in resume_text.lower() or "b.tech" in resume_text.lower():
+    score += 10
+
+# Display score
+st.write(f"🎯 Resume Score: {int(score)} / 100")
+
+# Suggestions
+st.subheader("💡 Suggestions to Improve")
+
+if matched_skills < 5:
+    st.write("✔ Add more technical skills")
+
+if word_count < 200:
+    st.write("✔ Increase resume content")
+
+if "project" not in resume_text.lower():
+    st.write("✔ Add project section")
+
+if "bachelor" not in resume_text.lower():
+    st.write("✔ Add education details")
