@@ -86,7 +86,7 @@ with tab2:
 
         # ---------------- DISPLAY RESULTS ----------------
         if results:
-            st.success("Based on your profile, here are the best jobs 👇")
+            st.success("Based on your profile, here are the best jobs ")
 
             for job, score in results:
                 st.write(f"### {job['title']}")
@@ -101,7 +101,7 @@ with tab2:
 
 
 # Resume scoring
-st.subheader("📊 Resume Score")
+st.subheader(" Resume Score")
 
 score = 0
 
@@ -147,10 +147,10 @@ if "bachelor" in resume_text.lower() or "b.tech" in resume_text.lower():
     score += 10
 
 # Display score
-st.write(f"🎯 Resume Score: {int(score)} / 100")
+st.write(f" Resume Score: {int(score)} / 100")
 
 # Suggestions
-st.subheader("💡 Suggestions to Improve")
+st.subheader(" Suggestions to Improve")
 
 if matched_skills < 5:
     st.write("✔ Add more technical skills")
