@@ -151,7 +151,7 @@ if uploaded_file:
         st.success("Data Analyst : ₹4 - ₹10 LPA")
 
 client = Groq(
-    api_key="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"
+    api_key="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"
 )
 SERP_API_KEY = "052622dbee00db39c9b486d861455d5a677459068506a030271b5988593bcbee"
 
@@ -245,4 +245,5 @@ if st.button("Search Jobs"):
             st.write("---")
 
     else:
-        st.warning("No jobs found")
+        st.warning("No jobs found")        
+
