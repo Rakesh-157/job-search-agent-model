@@ -1,165 +1,248 @@
 import streamlit as st
-from PyPDF2 import PdfReader
+import pdfplumber
+from groq import Groq
+from serpapi import GoogleSearch
 
-# ---------------- TITLE ----------------
-st.title("AI Career Assistant ")
+st.set_page_config(page_title="CareerPilot AI", layout="wide")
 
-# ---------------- JOB DATA ----------------
-jobs = [
-    {
-        "title": "Python Developer",
-        "location": "Bangalore",
-        "skills": ["python", "django"],
-        "salary": "5 LPA",
-        "company": "Infosys",
-        "desc": "IT services company"
-    },
-    {
-        "title": "Frontend Developer",
-        "location": "Mumbai",
-        "skills": ["html", "css", "javascript"],
-        "salary": "4 LPA",
-        "company": "TCS",
-        "desc": "Software company"
-    },
-    {
-        "title": "Data Analyst",
-        "location": "Delhi",
-        "skills": ["python", "sql", "excel"],
-        "salary": "6 LPA",
-        "company": "Wipro",
-        "desc": "Analytics services"
-    }
-]
+st.title("CareerPilot AI")
+st.subheader("Smart Job Search & Resume Analyzer")
 
-# ---------------- TABS ----------------
-tab1, tab2 = st.tabs([" Resume Analyzer", " Job Search"])
+uploaded_file = st.file_uploader(
+    "Upload Your Resume",
+    type=["pdf"]
+)
 
-# ---------------- RESUME SECTION ----------------
-resume_text = ""
+if uploaded_file:
 
-with tab1:
-    st.header("Upload Resume")
+    text = ""
 
-    uploaded_file = st.file_uploader("Upload your resume (PDF)", type="pdf")
+    with pdfplumber.open(uploaded_file) as pdf:
+        for page in pdf.pages:
+            page_text = page.extract_text()
 
-    if uploaded_file is not None:
-        reader = PdfReader(uploaded_file)
+            if page_text:
+                text += page_text
 
-        for page in reader.pages:
-            if page.extract_text():
-                resume_text += page.extract_text()
+    st.success("Resume Uploaded Successfully!")
 
-        st.success("Resume uploaded successfully!")
-        st.write(resume_text[:500])
+    st.subheader("Resume Text")
+    st.write(text)
 
-# ---------------- JOB SEARCH ----------------
-with tab2:
-    st.header("Find Jobs")
+    # ATS Score
 
-    skill_input = st.text_input("Enter skills (comma separated)")
-    location_input = st.text_input("Preferred location")
+    keywords = [
+        "python",
+        "java",
+        "sql",
+        "machine learning",
+        "data analytics",
+        "power bi",
+        "excel",
+        "pandas",
+        "numpy",
+        "scikit",
+        "mysql",
+        "flask",
+        "opencv",
+        "project",
+        "communication",
+        "teamwork"
+    ]
 
-    if st.button("Search Jobs"):
+    score = 0
+    found_skills = []
 
-        # Decide skill source
-        if resume_text.strip() != "":
-            user_skills = resume_text.lower().split()
-        else:
-            user_skills = [s.strip().lower() for s in skill_input.split(",") if s.strip()]
+    for skill in keywords:
+        if skill.lower() in text.lower():
+            score += 10
+            found_skills.append(skill)
 
-        results = []
+    if score > 100:
+        score = 100
 
+    st.subheader("ATS Score")
+    st.metric("Score", f"{score}/100")
+
+    st.subheader("Detected Skills")
+    st.write(found_skills)
+
+    # Recommended Jobs
+
+    st.subheader("Recommended Jobs")
+
+    jobs = []
+
+    if "python" in found_skills:
+        jobs.append("Python Developer")
+
+    if "sql" in found_skills:
+        jobs.append("Data Analyst")
+
+    if "machine learning" in found_skills:
+        jobs.append("Machine Learning Engineer")
+
+    if "power bi" in found_skills:
+        jobs.append("Business Intelligence Analyst")
+
+    if "flask" in found_skills:
+        jobs.append("Backend Developer")
+
+    if len(jobs) > 0:
         for job in jobs:
-            # Skill matching
-            match_count = len(set(user_skills) & set(job["skills"]))
+            st.success(job)
+    else:
+        st.warning("No matching jobs found")
 
-            # Smart score
-            score = match_count * 2
+    # Skill Gap Analysis
 
-            if location_input.strip() != "" and location_input.lower() in job["location"].lower():
-                score += 1
+    st.subheader("Skill Gap Analysis")
 
-            # Add only relevant jobs
-            if score > 0:
-                results.append((job, score))
+    required_skills = [
+        "python",
+        "sql",
+        "machine learning",
+        "power bi",
+        "communication",
+        "teamwork"
+    ]
 
-        # ---------------- DISPLAY RESULTS ----------------
-        if results:
-            st.success("Based on your profile, here are the best jobs ")
+    missing_skills = []
 
-            for job, score in results:
-                st.write(f"### {job['title']}")
-                st.write(f" Location: {job['location']}")
-                st.write(f" Salary: {job['salary']}")
-                st.write(f" Company: {job['company']}")
-                st.write(f" Description: {job['desc']}")
-                st.write(f" Match Score: {score}")
-                st.write("---")
-        else:
-            st.warning("No matching jobs found")
+    for skill in required_skills:
+        if skill not in found_skills:
+            missing_skills.append(skill)
+
+    if missing_skills:
+        st.warning("Missing Skills")
+        st.write(missing_skills)
+    else:
+        st.success("No major skill gaps found!")
+
+    # Resume Improvement Tips
+
+    st.subheader("Resume Improvement Suggestions")
+
+    st.info("""
+    • Add more technical skills
+
+    • Include internship experience
+
+    • Add measurable project outcomes
+
+    • Mention certifications clearly
+
+    • Improve ATS keywords
+
+    • Add LinkedIn and GitHub profiles
+    """)
+
+    # Salary Estimation
+
+    st.subheader("Estimated Salary Range")
+
+    if "machine learning" in found_skills:
+        st.success("Machine Learning Engineer : ₹6 - ₹12 LPA")
+
+    if "python" in found_skills:
+        st.success("Python Developer : ₹4 - ₹8 LPA")
+
+    if "sql" in found_skills:
+        st.success("Data Analyst : ₹4 - ₹10 LPA")
+
+client = Groq(
+    api_key="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"
+)
+SERP_API_KEY = "052622dbee00db39c9b486d861455d5a677459068506a030271b5988593bcbee"
+
+st.subheader("🤖 AI Resume Analysis")
+
+if uploaded_file:
+
+    if st.button("Analyze Resume with AI"):
+
+        prompt = f"""
+        Analyze this resume.
+
+        Resume:
+        {text}
+
+        Give:
+        1. ATS Score out of 100
+        2. Strengths
+        3. Weaknesses
+        4. Missing Skills
+        5. Suggested Job Roles
+        6. Resume Improvement Tips
+        """
+
+        response = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ]
+        )
+
+        result = response.choices[0].message.content
+
+        st.write(result)
 
 
-# Resume scoring
-st.subheader(" Resume Score")
+st.subheader(" AI Job Search")
 
-score = 0
+job_role = st.text_input(
+    "Enter Job Role",
+    "Python Developer"
+)
 
-total_skills = len(skill_keywords)
-skill_keywords = [
-    "python", "java", "c", "c++", "javascript",
-    "html", "css", "react", "node", "django",
-    "flask", "sql", "mongodb", "machine learning",
-    "data science", "ai", "deep learning",
-    "pandas", "numpy", "tensorflow", "git"
-]
-# define skills first
-skill_keywords = ["python", "java", "html", "css"]
+job_location = st.text_input(
+    "Enter Location",
+    "Bangalore"
+)
 
-# then use it
-total_skills = len(skill_keywords)
+if st.button("Search Jobs"):
 
-# Skill score (60 marks)
-total_skills = len(skill_keywords)
-matched_skills = len(found_skills)
+    params = {
+        "engine": "google_jobs",
+        "q": f"{job_role} jobs in {job_location}",
+        "hl": "en",
+        "api_key": SERP_API_KEY
+    }
 
-skill_score = (matched_skills / total_skills) * 60
-score += skill_score
+    search = GoogleSearch(params)
 
-# Resume length score (20 marks)
-word_count = len(resume_text.split())
+    results = search.get_dict()
 
-if word_count > 300:
-    score += 20
-elif word_count > 200:
-    score += 15
-elif word_count > 100:
-    score += 10
-else:
-    score += 5
+    jobs = results.get("jobs_results", [])
 
-# Projects check (10 marks)
-if "project" in resume_text.lower():
-    score += 10
+    if jobs:
 
-# Education check (10 marks)
-if "bachelor" in resume_text.lower() or "b.tech" in resume_text.lower():
-    score += 10
+        for job in jobs[:5]:
 
-# Display score
-st.write(f" Resume Score: {int(score)} / 100")
+            st.success(
+                job.get("title", "N/A")
+            )
 
-# Suggestions
-st.subheader(" Suggestions to Improve")
+            st.write(
+                " Company:",
+                job.get("company_name", "N/A")
+            )
 
-if matched_skills < 5:
-    st.write("✔ Add more technical skills")
+            st.write(
+                " Location:",
+                job.get("location", "N/A")
+            )
 
-if word_count < 200:
-    st.write("✔ Increase resume content")
+            st.write(
+                " Posted:",
+                job.get("detected_extensions", {})
+                .get("posted_at", "N/A")
+            )
 
-if "project" not in resume_text.lower():
-    st.write("✔ Add project section")
+            st.write("---")
 
-if "bachelor" not in resume_text.lower():
-    st.write("✔ Add education details")
+    else:
+        st.warning("No jobs found")
